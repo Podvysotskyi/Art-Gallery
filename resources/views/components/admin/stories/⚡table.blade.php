@@ -14,7 +14,9 @@ new class extends Component
         $this->refreshList();
     }
 
+    #[On('story-created')]
     #[On('story-updated')]
+    #[On('story-deleted')]
     public function refreshList(): void
     {
         $this->stories = Story::query()

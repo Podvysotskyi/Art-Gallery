@@ -1,14 +1,13 @@
 <?php
 
 use App\Models\Story;
-use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
 new class extends Component
 {
-    public ?string $storyId = null;
+    public ?Story $story = null;
 
     #[Validate]
     public string $title = '';
@@ -25,27 +24,19 @@ new class extends Component
     protected function rules(): array
     {
         return [
-            'title' => ['required', 'string', 'max:255', 'unique:stories,title,'.$this->storyId],
+            'title' => ['required', 'string', 'max:255', 'unique:stories,title,'.$this->story->id],
             'subtitle' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'hide' => ['boolean'],
         ];
     }
 
-    #[Computed]
-    public function story(): ?Story
-    {
-        if (! $this->storyId) {
-            return null;
-        }
-
-        return Story::query()->find($this->storyId);
-    }
-
     #[On('edit-story')]
-    public function openEditStory(string $storyId): void
+    public function openModal(string $storyId): void
     {
-        $this->storyId = $storyId;
+        $this->story = Story::query()
+            ->with('images')
+            ->find($storyId);
 
         if ($this->story) {
             $this->title = $this->story->title;
@@ -57,11 +48,19 @@ new class extends Component
         }
     }
 
+    public function closeModal(): void
+    {
+        Flux::modal('edit-story')->close();
+
+        $this->dispatch('story-updated', storyId: $this->story->id);
+        $this->resetForm();
+    }
+
     public function updateStory(): void
     {
         $this->validate();
 
-        $this->story?->update([
+        $this->story->update([
             'title' => $this->title,
             'subtitle' => $this->subtitle ?: null,
             'description' => $this->description ?: null,
@@ -71,33 +70,57 @@ new class extends Component
         Flux::modal('edit-story')->close();
         Flux::toast(text: 'Story updated successfully.', variant: 'success');
 
-        $this->dispatch('story-updated');
-        $this->storyId = null;
+        $this->dispatch('story-updated', storyId: $this->story->id);
+        $this->resetForm();
     }
 
     public function deleteStory(): void
     {
-        $this->story?->delete();
+        $this->story->delete();
 
         Flux::modal('delete-story')->close();
-        Flux::modal('edit-story')->close();
         Flux::toast(text: 'Story deleted successfully.', variant: 'success');
 
-        $this->dispatch('story-updated');
-        $this->storyId = null;
+        $this->dispatch('story-deleted', storyId: $this->story->id);
+        $this->resetForm();
+    }
+
+    public function confirmStoryDelete(): void
+    {
+        Flux::modal('edit-story')->close();
+        Flux::modal('delete-story')->show();
+    }
+
+    public function cancelStoryDelete(): void
+    {
+        Flux::modal('delete-story')->close();
+        Flux::modal('edit-story')->show();
+    }
+
+    private function resetForm(): void
+    {
+        $this->story = null;
+        $this->reset(['title', 'subtitle', 'description', 'hide']);
+        $this->resetValidation();
     }
 };
 ?>
 
 <div>
-    <flux:modal name="edit-story" class="md:w-xl" :dismissible="false">
+    <flux:modal name="edit-story" class="md:w-xl" :dismissible="false" :closable="false">
         <section class="space-y-5 text-left">
-            <div>
-                <flux:heading size="lg">Edit Story</flux:heading>
-                <flux:text class="mt-1">Update story details and visibility status.</flux:text>
+            <div class="flex items-start justify-between gap-3">
+                <div>
+                    <flux:heading size="lg">Edit Story</flux:heading>
+                    <flux:text class="mt-1">Update story details and visibility status.</flux:text>
+                </div>
+
+                <flux:button variant="danger" type="button" wire:click="confirmStoryDelete">
+                    Delete Story
+                </flux:button>
             </div>
 
-            @if($this->story)
+        @if($this->story)
                 <div>
                     <label for="edit-story-title-{{ $this->story->id }}"
                            class="mb-2 block text-sm font-medium text-zinc-700">Title</label>
@@ -154,9 +177,9 @@ new class extends Component
             @endif
 
             <div class="flex items-center justify-end gap-3 pt-2">
-                <flux:modal.trigger name="delete-story">
-                    <flux:button variant="danger" type="button">Delete Story</flux:button>
-                </flux:modal.trigger>
+                <flux:button variant="ghost" type="button" wire:click="closeModal">
+                    Cancel
+                </flux:button>
 
                 <flux:button variant="primary" type="button" wire:click="updateStory">
                     Save Changes
@@ -165,14 +188,14 @@ new class extends Component
         </section>
     </flux:modal>
 
-    <flux:modal name="delete-story" class="max-w-md">
+    <flux:modal name="delete-story" class="max-w-md" :dismissible="false" :closable="false">
         <div class="space-y-2 text-left">
             <flux:heading size="lg">Delete story?</flux:heading>
             <flux:text>This action cannot be undone.</flux:text>
         </div>
 
         <div class="mt-6 flex items-center justify-end gap-3">
-            <flux:button variant="ghost" type="button" x-on:click="$flux.modal('delete-story').close()">
+            <flux:button variant="ghost" type="button" wire:click="cancelStoryDelete">
                 Cancel
             </flux:button>
 

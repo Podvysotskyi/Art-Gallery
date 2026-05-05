@@ -8,6 +8,8 @@ use Livewire\Component;
 
 new class extends Component
 {
+    public ?Image $image = null;
+
     #[Validate]
     public string $title = '';
 
@@ -22,10 +24,8 @@ new class extends Component
         ];
     }
 
-    public ?Image $image = null;
-
     #[On('edit-image')]
-    public function openEditImage(string $imageId): void
+    public function openModal(string $imageId): void
     {
         $this->image = Image::query()->find($imageId);
 
@@ -37,6 +37,14 @@ new class extends Component
         }
     }
 
+    public function closeModal(): void
+    {
+        Flux::modal('edit-image')->close();
+
+        $this->dispatch('image-updated', imageId: $this->image->id);
+        $this->resetForm();
+    }
+
     public function updateImage(): void
     {
         $this->validate();
@@ -46,10 +54,11 @@ new class extends Component
             'hide' => $this->hide,
         ]);
 
-        $this->dispatch('image-updated', imageId: $this->image->id);
-
-        Flux::toast(text: 'Image updated.', variant: 'success');
         Flux::modal('edit-image')->close();
+        Flux::toast(text: 'Image updated.', variant: 'success');
+
+        $this->dispatch('image-updated', imageId: $this->image->id);
+        $this->resetForm();
     }
 
     public function deleteImage(): void
@@ -63,12 +72,10 @@ new class extends Component
             Storage::disk('public')->delete("images/previews/{$this->image->id}.jpg");
         }
 
-        $this->dispatch('image-deleted', imageId: $this->image->id);
-
-        Flux::toast(text: 'Image deleted successfully.', variant: 'success');
         Flux::modal('delete-image')->close();
-        Flux::modal('edit-image')->close();
+        Flux::toast(text: 'Image deleted successfully.', variant: 'success');
 
+        $this->dispatch('image-deleted', imageId: $this->image->id);
         $this->resetForm();
     }
 
@@ -84,19 +91,10 @@ new class extends Component
         Flux::modal('edit-image')->show();
     }
 
-    public function cancelEdit(): void
-    {
-        $this->dispatch('image-updated', imageId: $this->image->id);
-        Flux::modal('edit-image')->close();
-
-        $this->resetForm();
-    }
-
     private function resetForm(): void
     {
         $this->image = null;
         $this->reset(['title', 'hide']);
-
         $this->resetValidation();
     }
 };
@@ -155,7 +153,7 @@ new class extends Component
             @endif
 
             <div class="flex flex-wrap items-center justify-end gap-3 pt-2">
-                <flux:button variant="ghost" type="button" wire:click="cancelEdit">
+                <flux:button variant="ghost" type="button" wire:click="closeModal">
                     Cancel
                 </flux:button>
 

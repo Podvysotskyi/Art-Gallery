@@ -10,7 +10,7 @@ new class extends Component
     public ?Story $story = null;
 
     #[On('open-story-images')]
-    public function openStoryImages(string $storyId): void
+    public function openModal(string $storyId): void
     {
         $this->story = Story::query()
             ->with('images')
@@ -19,6 +19,11 @@ new class extends Component
         if ($this->story) {
             Flux::modal('story-images')->show();
         }
+    }
+
+    public function closeModal(): void
+    {
+        Flux::modal('story-images')->close();
     }
 
     public function editImage(string $imageId): void
@@ -48,7 +53,7 @@ new class extends Component
 ?>
 
 <div>
-    <flux:modal name="story-images" class="w-full max-w-5xl" :dismissible="false">
+    <flux:modal name="story-images" class="w-full max-w-5xl" :dismissible="false" :closable="false">
         <section class="space-y-5 text-left">
             <div>
                 <flux:heading size="lg">Story Images</flux:heading>
@@ -112,8 +117,14 @@ new class extends Component
                     </table>
                 </div>
 
-                <div class="flex items-center justify-end pt-2">
-                    <livewire:admin.images.create-modal/>
+                <div class="mt-6 flex items-center justify-end gap-3">
+                    <flux:button variant="ghost" type="button" wire:click="closeModal">
+                        Cancel
+                    </flux:button>
+
+                    <div class="flex items-center justify-end pt-2">
+                        <livewire:admin.images.create-modal/>
+                    </div>
                 </div>
             @endif
         </section>
