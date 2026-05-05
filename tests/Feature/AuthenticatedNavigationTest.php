@@ -47,7 +47,7 @@ class AuthenticatedNavigationTest extends TestCase
             ->assertRedirect('/login');
     }
 
-    public function test_guest_is_redirected_from_admin_images_create_page(): void
+    public function test_guest_is_redirected_from_admin_images_create_route(): void
     {
         $this->get('/admin/images/create')
             ->assertRedirect('/login');
@@ -125,14 +125,12 @@ class AuthenticatedNavigationTest extends TestCase
             ->assertSee('Hidden');
     }
 
-    public function test_authenticated_user_can_view_admin_image_create_page(): void
+    public function test_authenticated_user_can_view_admin_images_page_with_create_action(): void
     {
         $this->actingAs(User::factory()->create())
-            ->get('/admin/images/create')
+            ->get('/admin/images')
             ->assertOk()
-            ->assertSee('Create Image')
-            ->assertSee('New Image')
-            ->assertSee('Image File (JPG)');
+            ->assertSee('Upload Image');
     }
 
     public function test_authenticated_user_can_view_admin_image_edit_modal_content(): void
@@ -154,7 +152,7 @@ class AuthenticatedNavigationTest extends TestCase
 
         Livewire::actingAs(User::factory()->create())
             ->test('admin.images.edit-modal')
-            ->call('openEditImage', $image->id)
+            ->call('openModal', $image->id)
             ->assertSee('Edit Image')
             ->assertSee('Save Changes')
             ->assertSee('Delete Image')
@@ -248,7 +246,7 @@ class AuthenticatedNavigationTest extends TestCase
 
         Livewire::actingAs(User::factory()->create())
             ->test('admin.images.edit-modal')
-            ->call('openEditImage', $image->id)
+            ->call('openModal', $image->id)
             ->set('title', 'Updated Title')
             ->set('hide', true)
             ->call('updateImage')
@@ -276,9 +274,9 @@ class AuthenticatedNavigationTest extends TestCase
 
         Livewire::actingAs(User::factory()->create())
             ->test('admin.images.edit-modal')
-            ->call('openEditImage', $image->id)
+            ->call('openModal', $image->id)
             ->call('deleteImage')
-            ->assertDispatched('image-updated');
+            ->assertDispatched('image-deleted');
 
         $this->assertDatabaseMissing('images', [
             'id' => $image->id,

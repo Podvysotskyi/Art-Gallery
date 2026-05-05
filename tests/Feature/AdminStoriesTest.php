@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Image;
 use App\Models\Story;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -62,7 +63,7 @@ class AdminStoriesTest extends TestCase
 
         Livewire::actingAs($user)
             ->test('admin.stories.images-modal')
-            ->call('openStoryImages', $story->id)
+            ->call('openModal', $story->id)
             ->assertSee('Story Images')
             ->assertSee('First Story Image')
             ->assertSee('Second Story Image')
@@ -89,12 +90,12 @@ class AdminStoriesTest extends TestCase
         $response->assertSee('Loading stories...');
     }
 
-    public function test_admin_stories_create_page_is_available(): void
+    public function test_admin_stories_page_shows_create_story_action(): void
     {
         $user = User::factory()->create();
 
         $this->actingAs($user)
-            ->get(route('admin.stories.create'))
+            ->get(route('admin.stories'))
             ->assertOk()
             ->assertSee('New Story');
     }
@@ -135,7 +136,7 @@ class AdminStoriesTest extends TestCase
 
         Livewire::actingAs($user)
             ->test('admin.stories.edit-modal')
-            ->call('openEditStory', $story->id)
+            ->call('openModal', $story->id)
             ->assertSee('Edit Story')
             ->assertSee('Title')
             ->assertSee('Save Changes')
@@ -154,7 +155,7 @@ class AdminStoriesTest extends TestCase
 
         Livewire::actingAs($user)
             ->test('admin.stories.edit-modal')
-            ->call('openEditStory', $story->id)
+            ->call('openModal', $story->id)
             ->set('title', 'Updated Title')
             ->set('subtitle', 'Updated Subtitle')
             ->set('description', 'Updated Description')
@@ -183,12 +184,78 @@ class AdminStoriesTest extends TestCase
 
         Livewire::actingAs($user)
             ->test('admin.stories.edit-modal')
-            ->call('openEditStory', $story->id)
+            ->call('openModal', $story->id)
             ->call('deleteStory')
-            ->assertDispatched('story-updated');
+            ->assertDispatched('story-deleted');
 
         $this->assertDatabaseMissing('stories', [
             'id' => $story->id,
+        ]);
+    }
+
+    public function test_story_images_modal_dispatches_create_image_event(): void
+    {
+        $user = User::factory()->create();
+        $story = Story::create([
+            'title' => 'Story For Create Event',
+            'subtitle' => 'Subtitle',
+            'description' => 'Description',
+            'hide' => false,
+        ]);
+
+        Livewire::actingAs($user)
+            ->test('admin.stories.images-modal')
+            ->call('openModal', $story->id)
+            ->call('createImage')
+            ->assertDispatched('create-image');
+    }
+
+    public function test_story_images_modal_dispatches_edit_image_event_with_image_id(): void
+    {
+        $user = User::factory()->create();
+        $story = Story::create([
+            'title' => 'Story For Edit Event',
+            'subtitle' => 'Subtitle',
+            'description' => 'Description',
+            'hide' => false,
+        ]);
+        $image = $story->images()->create([
+            'title' => 'Editable Story Image',
+            'hash' => 'story-edit-image',
+            'hide' => false,
+        ]);
+
+        Livewire::actingAs($user)
+            ->test('admin.stories.images-modal')
+            ->call('openModal', $story->id)
+            ->call('editImage', $image->id)
+            ->assertDispatched('edit-image');
+    }
+
+    public function test_story_images_modal_associates_new_image_to_story(): void
+    {
+        $user = User::factory()->create();
+        $story = Story::create([
+            'title' => 'Story For Image Association',
+            'subtitle' => 'Subtitle',
+            'description' => 'Description',
+            'hide' => false,
+        ]);
+        $image = Image::create([
+            'title' => 'Unassigned Image',
+            'hash' => 'unassigned-image-hash',
+            'hide' => false,
+        ]);
+
+        Livewire::actingAs($user)
+            ->test('admin.stories.images-modal')
+            ->call('openModal', $story->id)
+            ->call('saveImage', $image->id);
+
+        $this->assertDatabaseHas('images', [
+            'id' => $image->id,
+            'entity_id' => $story->id,
+            'entity_type' => Story::class,
         ]);
     }
 }

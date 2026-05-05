@@ -55,9 +55,21 @@ class AdminImagesTest extends TestCase
 
         Livewire::actingAs($user)
             ->test('admin.images.edit-modal')
-            ->call('openEditImage', $image->id)
+            ->call('openModal', $image->id)
             ->assertSee('Edit Image')
             ->assertSee('Full Request Image')
             ->assertSee('Save Changes');
+    }
+
+    public function test_admin_images_create_modal_contains_form_content_when_opened(): void
+    {
+        $user = User::factory()->create();
+
+        Livewire::actingAs($user)
+            ->test('admin.images.create-modal')
+            ->call('openModal')
+            ->assertSee('New Image')
+            ->assertSee('Create Image')
+            ->assertSee('Image File (JPG)');
     }
 }
