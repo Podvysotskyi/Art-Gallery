@@ -26,6 +26,12 @@ new class extends Component
         Flux::modal('story-images')->close();
     }
 
+    public function createImage(): void
+    {
+        Flux::modal('story-images')->close();
+        $this->dispatch('create-image');
+    }
+
     public function editImage(string $imageId): void
     {
         Flux::modal('story-images')->close();
@@ -33,11 +39,13 @@ new class extends Component
     }
 
     #[On('image-created')]
-    public function saveImage(string $imageId): void
+    public function saveImage(?string $imageId = null): void
     {
-        $image = Image::query()->find($imageId);
-        $image->entity()->associate($this->story);
-        $image->save();
+        if ($imageId) {
+            $image = Image::query()->find($imageId);
+            $image->entity()->associate($this->story);
+            $image->save();
+        }
 
         $this->updateImages();
     }
@@ -122,13 +130,14 @@ new class extends Component
                         Cancel
                     </flux:button>
 
-                    <div class="flex items-center justify-end pt-2">
-                        <livewire:admin.images.create-modal/>
-                    </div>
+                    <flux:button variant="primary" type="button" wire:click="createImage">
+                        Create Image
+                    </flux:button>
                 </div>
             @endif
         </section>
     </flux:modal>
 
+    <livewire:admin.images.create-modal :show-trigger="false"/>
     <livewire:admin.images.edit-modal/>
 </div>

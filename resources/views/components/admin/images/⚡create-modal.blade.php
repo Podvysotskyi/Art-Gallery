@@ -3,6 +3,7 @@
 use App\Models\Image;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -12,6 +13,8 @@ use Spatie\Image\Image as SpatieImage;
 new class extends Component
 {
     use WithFileUploads;
+
+    public bool $showTrigger = true;
 
     #[Validate]
     public string $title = '';
@@ -31,6 +34,20 @@ new class extends Component
         ];
     }
 
+    #[On('create-image')]
+    public function openModal(): void
+    {
+        Flux::modal('create-image')->show();
+    }
+
+    public function closeModal(): void
+    {
+        Flux::modal('create-image')->close();
+
+        $this->dispatch('image-created', imageId: null);
+        $this->resetForm();
+    }
+
     public function createImage(): void
     {
         $this->validate();
@@ -48,6 +65,9 @@ new class extends Component
         } catch (Exception) {
             Flux::toast(text: 'Image already exists.', variant: 'danger');
             Flux::modal('create-image')->close();
+
+            $this->dispatch('image-created', imageId: null);
+            $this->resetForm();
 
             return;
         }
@@ -82,30 +102,37 @@ new class extends Component
             Flux::toast(text: 'Failed to upload the image.', variant: 'danger');
             Flux::modal('create-image')->close();
 
-            throw $exception;
+            $this->dispatch('image-created', imageId: null);
+            $this->resetForm();
+
+            return;
         }
 
         Flux::toast(text: 'Image created successfully.', variant: 'success');
         Flux::modal('create-image')->close();
 
         $this->dispatch('image-created', imageId: $image->id);
+        $this->resetForm();
     }
 
-    public function resetForm(): void
+    private function resetForm(): void
     {
         $this->reset(['title', 'image', 'hide']);
-
         $this->resetValidation();
     }
 };
 ?>
 
 <div>
-    <flux:modal.trigger name="create-image">
-        <flux:button variant="primary">Upload Image</flux:button>
-    </flux:modal.trigger>
+    @if ($showTrigger)
+        <flux:modal.trigger name="create-image">
+            <flux:button variant="primary" type="button">
+                Upload Image
+            </flux:button>
+        </flux:modal.trigger>
+    @endif
 
-    <flux:modal name="create-image" class="md:w-xl" :dismissible="false" wire:cancel="resetForm" wire:close="resetForm">
+    <flux:modal name="create-image" class="md:w-xl" :dismissible="false" :closable="false">
         <section class="space-y-5 text-left">
             <div>
                 <flux:heading size="lg">New Image</flux:heading>
@@ -147,7 +174,11 @@ new class extends Component
                 <label for="create-hide" class="text-sm text-zinc-700">Mark as hidden</label>
             </div>
 
-            <div class="flex items-center justify-end gap-3 pt-2">
+            <div class="mt-6 flex items-center justify-end gap-3">
+                <flux:button variant="ghost" type="button" wire:click="closeModal">
+                    Cancel
+                </flux:button>
+
                 <flux:button variant="primary" type="button" wire:click="createImage">
                     Create Image
                 </flux:button>
