@@ -23,7 +23,6 @@ Use Flux UI components when available. Fall back to standard Blade components wh
 needs.
 
 <!-- Basic Button -->
-
 ```blade
 <flux:button variant="primary">Click me</flux:button>
 ```
@@ -39,7 +38,6 @@ Flux includes [Heroicons](https://heroicons.com/) as its default icon set. Searc
 site - do not guess or invent icon names.
 
 <!-- Icon Button -->
-
 ```blade
 <flux:button icon="arrow-down-tray">Export</flux:button>
 ```
@@ -56,7 +54,6 @@ php artisan flux:icon crown grip-vertical github
 ### Form Fields
 
 <!-- Form Field -->
-
 ```blade
 <flux:field>
     <flux:label>Email</flux:label>
@@ -68,7 +65,6 @@ php artisan flux:icon crown grip-vertical github
 ### Modals
 
 <!-- Modal -->
-
 ```blade
 <flux:modal wire:model="showModal">
     <flux:heading>Title</flux:heading>

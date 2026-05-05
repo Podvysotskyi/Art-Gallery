@@ -1,8 +1,7 @@
 {
     "agents": [
         "codex",
-        "junie",
-        "gemini"
+        "junie"
     ],
     "cloud": false,
     "guidelines": true,
@@ -11,6 +10,7 @@
     "sail": false,
     "skills": [
         "laravel-best-practices",
+        "pulse-development",
         "socialite-development",
         "fluxui-development",
         "livewire-development",

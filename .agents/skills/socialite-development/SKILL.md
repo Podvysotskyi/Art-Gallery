@@ -3,7 +3,7 @@ name: socialite-development
 description: "Manages OAuth social authentication with Laravel Socialite. Activate when adding social login providers; configuring OAuth redirect/callback flows; retrieving authenticated user details; customizing scopes or parameters; setting up community providers; testing with Socialite fakes; or when the user mentions social login, OAuth, Socialite, or third-party authentication."
 license: MIT
 metadata:
-    author: laravel
+  author: laravel
 ---
 
 # Socialite Authentication
@@ -28,7 +28,6 @@ Twitter/X: Use `twitter-oauth-2` (OAuth 2.0) for new projects. The legacy `twitt
 remain unchanged despite the platform rebrand.
 
 Community providers differ from built-in providers in the following ways:
-
 - Installed via `composer require socialiteproviders/{name}`
 - Must register via event listener — NOT auto-discovered like built-in providers
 - Use `search-docs` for the registration pattern
