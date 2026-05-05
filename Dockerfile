@@ -1,29 +1,33 @@
-FROM php:8.5-cli
+FROM php:8.5-cli as php
 
-WORKDIR /var/www/html
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+RUN install-php-extensions bcmath zip exif
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        git \
-        unzip \
-        libpq-dev \
-        libzip-dev \
-        libjpeg62-turbo-dev \
-        libpng-dev \
-        libfreetype6-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_pgsql zip gd exif \
-    && pecl install redis \
-    && docker-php-ext-enable redis
+WORKDIR /src
 
-EXPOSE 8000
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 COPY . .
 
-# Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 RUN composer install
 
-RUN php artisan storage:link
+FROM node:24-alpine as node
+
+COPY --from=php /src /src
+
+WORKDIR /src
+
+RUN npm install && npm run build
+
+FROM php:8.5-fpm as base
+
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+RUN install-php-extensions redis pdo_pgsql gd
+
+EXPOSE 8000
+
+COPY --from=node /src /app
+
+WORKDIR /app
 
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
