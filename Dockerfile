@@ -1,15 +1,16 @@
 FROM php:8.5-cli as php
 
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
-RUN install-php-extensions bcmath zip exif
+RUN install-php-extensions bcmath zip exif redis pdo_pgsql gd \
+    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+COPY . /src
 
 WORKDIR /src
+RUN composer install \
+    && chown -R www-data:www-data /src
 
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-COPY . .
-
-RUN composer install
+USER www-data
 
 FROM node:24-alpine as node
 
@@ -30,4 +31,9 @@ COPY --from=node /src /app
 
 WORKDIR /app
 
+RUN chown -R www-data:www-data /app
+
+USER www-data
+
+ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]

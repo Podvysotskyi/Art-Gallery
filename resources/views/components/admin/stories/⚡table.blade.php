@@ -68,13 +68,22 @@ new class extends Component
                     <td class="px-4 py-3 text-sm text-zinc-600">{{ $story->hide ? 'Hidden' : 'Published' }}</td>
                     <td class="px-4 py-3 text-right text-sm text-zinc-600">{{ $story->created_at->format('M d, Y') }}</td>
                     <td class="px-4 py-3 text-right">
-                        <button
-                            type="button"
-                            wire:click="$dispatch('edit-story', { storyId: '{{ $story->id }}' })"
-                            class="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-900"
-                        >
-                            Edit
-                        </button>
+                        <div class="inline-flex items-center gap-2">
+                            <button
+                                type="button"
+                                wire:click="$dispatch('open-story-images', { storyId: '{{ $story->id }}' })"
+                                class="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-900"
+                            >
+                                Images
+                            </button>
+                            <button
+                                type="button"
+                                wire:click="$dispatch('edit-story', { storyId: '{{ $story->id }}' })"
+                                class="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-900"
+                            >
+                                Edit
+                            </button>
+                        </div>
                     </td>
                 </tr>
             @empty
@@ -88,5 +97,6 @@ new class extends Component
         </table>
     </div>
 
+    <livewire:admin.stories.images-modal/>
     <livewire:admin.stories.edit-modal/>
 </div>

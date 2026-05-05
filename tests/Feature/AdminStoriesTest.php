@@ -38,6 +38,38 @@ class AdminStoriesTest extends TestCase
             ->assertSee('Test Subtitle');
     }
 
+    public function test_admin_can_open_story_images_modal_and_see_images(): void
+    {
+        $user = User::factory()->create();
+        $story = Story::create([
+            'title' => 'Story With Images',
+            'subtitle' => 'Subtitle',
+            'description' => 'Description',
+            'hide' => false,
+        ]);
+
+        $story->images()->create([
+            'title' => 'First Story Image',
+            'hash' => 'story-image-1',
+            'hide' => false,
+        ]);
+
+        $story->images()->create([
+            'title' => 'Second Story Image',
+            'hash' => 'story-image-2',
+            'hide' => true,
+        ]);
+
+        Livewire::actingAs($user)
+            ->test('admin.stories.images-modal')
+            ->call('openStoryImages', $story->id)
+            ->assertSee('Story Images')
+            ->assertSee('First Story Image')
+            ->assertSee('Second Story Image')
+            ->assertSee('Published')
+            ->assertSee('Hidden');
+    }
+
     public function test_admin_stories_page_full_request(): void
     {
         $user = User::factory()->create();

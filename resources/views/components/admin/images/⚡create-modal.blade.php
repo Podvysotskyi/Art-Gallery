@@ -53,6 +53,13 @@ new class extends Component
         }
 
         try {
+            if (! Storage::disk('public')->exists('images')) {
+                Storage::disk('public')->makeDirectory('images');
+            }
+            if (! Storage::disk('public')->exists('images/previews')) {
+                Storage::disk('public')->makeDirectory('images/previews');
+            }
+
             $this->image->storeAs('images', "{$image->id}.jpg", 'public');
 
             $originalPath = Storage::disk('public')->path("images/{$image->id}.jpg");
@@ -61,7 +68,7 @@ new class extends Component
             SpatieImage::load($originalPath)
                 ->fit(Fit::Crop, 240, 240)
                 ->save($previewPath);
-        } catch (Exception) {
+        } catch (Exception $exception) {
             $image->delete();
 
             if (Storage::disk('public')->exists("images/{$image->id}.jpg")) {
@@ -75,13 +82,13 @@ new class extends Component
             Flux::toast(text: 'Failed to upload the image.', variant: 'danger');
             Flux::modal('create-image')->close();
 
-            return;
+            throw $exception;
         }
 
         Flux::toast(text: 'Image created successfully.', variant: 'success');
         Flux::modal('create-image')->close();
 
-        $this->dispatch('image-updated');
+        $this->dispatch('image-created', imageId: $image->id);
     }
 
     public function resetForm(): void

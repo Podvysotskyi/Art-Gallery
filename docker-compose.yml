@@ -3,13 +3,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: base
     container_name: art-gallery-app
     ports:
       - '8000:8000'
     volumes:
-      - ./:/var/www/html
-      - /var/www/html/vendor
-      - /var/www/html/storage/framework/views
+      - ./:/app
+      - /app/vendor
+      - /app/public/build
+      - /app/public/vendor
+      - /app/storage/framework/views
     depends_on:
       postgres:
         condition: service_healthy

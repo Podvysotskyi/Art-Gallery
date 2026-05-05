@@ -14,6 +14,8 @@ new class extends Component
         $this->refreshList();
     }
 
+    #[On('image-created')]
+    #[On('image-deleted')]
     #[On('image-updated')]
     public function refreshList(): void
     {

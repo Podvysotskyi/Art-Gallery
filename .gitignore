@@ -25,3 +25,4 @@ yarn-error.log
 /.codex/
 /.gemini/
 /.junie/
+/public/vendor/

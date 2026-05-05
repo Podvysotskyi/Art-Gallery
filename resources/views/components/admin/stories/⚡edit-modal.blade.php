@@ -90,7 +90,7 @@ new class extends Component
 ?>
 
 <div>
-    <flux:modal name="edit-story" class="md:w-xl">
+    <flux:modal name="edit-story" class="md:w-xl" :dismissible="false">
         <section class="space-y-5 text-left">
             <div>
                 <flux:heading size="lg">Edit Story</flux:heading>

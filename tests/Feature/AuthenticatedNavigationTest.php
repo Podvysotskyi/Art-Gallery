@@ -70,6 +70,7 @@ class AuthenticatedNavigationTest extends TestCase
             ->assertSee('Preview')
             ->assertSee('Action')
             ->assertSee('Upload Image')
+            ->assertSee('/logs')
             ->assertSee('Logout');
     }
 

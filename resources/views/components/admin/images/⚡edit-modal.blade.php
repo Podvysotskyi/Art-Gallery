@@ -50,6 +50,11 @@ new class extends Component
 
         Flux::toast(text: 'Image updated.', variant: 'success');
         Flux::modal('edit-image')->close();
+
+        $this->image = null;
+        $this->reset(['title', 'hide']);
+
+        $this->resetValidation();
     }
 
     public function deleteImage(): void
@@ -63,25 +68,29 @@ new class extends Component
             Storage::disk('public')->delete("images/previews/{$this->image->id}.jpg");
         }
 
-        $this->dispatch('image-updated', imageId: $this->image->id);
+        $this->dispatch('image-deleted', imageId: $this->image->id);
 
         Flux::toast(text: 'Image deleted successfully.', variant: 'success');
         Flux::modal('delete-image')->close();
         Flux::modal('edit-image')->close();
     }
 
-    public function resetForm(): void
+    public function confirmImageDelete(): void
     {
-        $this->image = null;
-        $this->reset(['title', 'hide']);
+        Flux::modal('edit-image')->close();
+        Flux::modal('delete-image')->show();
+    }
 
-        $this->resetValidation();
+    public function cancelImageDelete(): void
+    {
+        Flux::modal('delete-image')->close();
+        Flux::modal('edit-image')->show();
     }
 };
 ?>
 
 <div>
-    <flux:modal name="edit-image" class="md:w-xl" :dismissible="false" wire:cancel="resetForm" wire:close="resetForm">
+    <flux:modal name="edit-image" class="md:w-xl" :dismissible="false" :closable="false">
         <section class="space-y-6 text-left">
             <div>
                 <div>
@@ -129,9 +138,9 @@ new class extends Component
             @endif
 
             <div class="flex flex-wrap items-center justify-end gap-3 pt-2">
-                <flux:modal.trigger name="delete-image">
-                    <flux:button variant="danger" type="button">Delete Image</flux:button>
-                </flux:modal.trigger>
+                <flux:button variant="danger" type="button" wire:click="confirmImageDelete">
+                    Delete Image
+                </flux:button>
 
                 <flux:button variant="primary" type="button" wire:click="updateImage">
                     Save Changes
@@ -140,14 +149,14 @@ new class extends Component
         </section>
     </flux:modal>
 
-    <flux:modal name="delete-image" class="max-w-md" :dismissible="false">
+    <flux:modal name="delete-image" class="max-w-md" :dismissible="false" :closable="false">
         <div class="space-y-2 text-left">
             <flux:heading size="lg">Delete image?</flux:heading>
             <flux:text>This action cannot be undone.</flux:text>
         </div>
 
         <div class="mt-6 flex items-center justify-end gap-3">
-            <flux:button variant="ghost" type="button" x-on:click="$flux.modal('delete-image').close()">
+            <flux:button variant="ghost" type="button" wire:click="cancelImageDelete">
                 Cancel
             </flux:button>
 
