@@ -50,11 +50,6 @@ new class extends Component
 
         Flux::toast(text: 'Image updated.', variant: 'success');
         Flux::modal('edit-image')->close();
-
-        $this->image = null;
-        $this->reset(['title', 'hide']);
-
-        $this->resetValidation();
     }
 
     public function deleteImage(): void
@@ -73,6 +68,8 @@ new class extends Component
         Flux::toast(text: 'Image deleted successfully.', variant: 'success');
         Flux::modal('delete-image')->close();
         Flux::modal('edit-image')->close();
+
+        $this->resetForm();
     }
 
     public function confirmImageDelete(): void
@@ -86,17 +83,37 @@ new class extends Component
         Flux::modal('delete-image')->close();
         Flux::modal('edit-image')->show();
     }
+
+    public function cancelEdit(): void
+    {
+        $this->dispatch('image-updated', imageId: $this->image->id);
+        Flux::modal('edit-image')->close();
+
+        $this->resetForm();
+    }
+
+    private function resetForm(): void
+    {
+        $this->image = null;
+        $this->reset(['title', 'hide']);
+
+        $this->resetValidation();
+    }
 };
 ?>
 
 <div>
     <flux:modal name="edit-image" class="md:w-xl" :dismissible="false" :closable="false">
         <section class="space-y-6 text-left">
-            <div>
+            <div class="flex items-start justify-between gap-3">
                 <div>
                     <flux:heading size="lg">Edit Image</flux:heading>
                     <flux:text class="mt-1">Update image title and visibility status.</flux:text>
                 </div>
+
+                <flux:button variant="danger" type="button" wire:click="confirmImageDelete">
+                    Delete Image
+                </flux:button>
             </div>
 
             @if($this->image)
@@ -138,8 +155,8 @@ new class extends Component
             @endif
 
             <div class="flex flex-wrap items-center justify-end gap-3 pt-2">
-                <flux:button variant="danger" type="button" wire:click="confirmImageDelete">
-                    Delete Image
+                <flux:button variant="ghost" type="button" wire:click="cancelEdit">
+                    Cancel
                 </flux:button>
 
                 <flux:button variant="primary" type="button" wire:click="updateImage">
