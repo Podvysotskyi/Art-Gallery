@@ -1,7 +1,7 @@
 <?php
 
+use App\Actions\Image\DeleteImageAction;
 use App\Models\Image;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
@@ -61,16 +61,9 @@ new class extends Component
         $this->resetForm();
     }
 
-    public function deleteImage(): void
+    public function deleteImage(DeleteImageAction $deleteImageAction): void
     {
-        $this->image->delete();
-
-        if (Storage::disk('public')->exists("images/{$this->image->id}.jpg")) {
-            Storage::disk('public')->delete("images/{$this->image->id}.jpg");
-        }
-        if (Storage::disk('public')->exists("images/previews/{$this->image->id}.jpg")) {
-            Storage::disk('public')->delete("images/previews/{$this->image->id}.jpg");
-        }
+        $deleteImageAction->handle($this->image);
 
         Flux::modal('delete-image')->close();
         Flux::toast(text: 'Image deleted successfully.', variant: 'success');
@@ -124,6 +117,20 @@ new class extends Component
                     />
 
                     <div class="space-y-5">
+                        @if($this->image->entity_type === Story::class)
+                            <div>
+                                <label for="story-{{ $this->image->id }}"
+                                       class="mb-2 block text-sm font-medium text-zinc-700">Story</label>
+                                <input
+                                    id="story-{{ $this->image->id }}"
+                                    type="text"
+                                    readonly
+                                    value="{{ $this->image->entity->title ?? '' }}"
+                                    class="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-500"
+                                />
+                            </div>
+                        @endif
+
                         <div>
                             <label for="title-{{ $this->image->id }}"
                                    class="mb-2 block text-sm font-medium text-zinc-700">Image Name</label>

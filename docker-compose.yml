@@ -10,6 +10,7 @@ services:
     volumes:
       - ./:/app
       - /app/vendor
+      - /app/bootstrap/cache
       - /app/public/build
       - /app/public/vendor
       - /app/storage/framework/views
@@ -18,19 +19,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    environment:
-      DB_CONNECTION: pgsql
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_DATABASE: '${POSTGRES_DB:-gallery}'
-      DB_USERNAME: '${POSTGRES_USER:-postgres}'
-      DB_PASSWORD: '${POSTGRES_PASSWORD:-secret}'
-      SESSION_DRIVER: redis
-      CACHE_STORE: redis
-      REDIS_CLIENT: phpredis
-      REDIS_HOST: redis
-      REDIS_PASSWORD: null
-      REDIS_PORT: 6379
 
   postgres:
     image: postgres:16-alpine

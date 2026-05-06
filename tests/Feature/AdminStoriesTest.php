@@ -62,7 +62,7 @@ class AdminStoriesTest extends TestCase
         ]);
 
         Livewire::actingAs($user)
-            ->test('admin.stories.images-modal')
+            ->test('admin.stories.images')
             ->call('openModal', $story->id)
             ->assertSee('Story Images')
             ->assertSee('First Story Image')
@@ -105,7 +105,7 @@ class AdminStoriesTest extends TestCase
         $user = User::factory()->create();
 
         Livewire::actingAs($user)
-            ->test('admin.stories.create-modal')
+            ->test('admin.stories.create')
             ->set('title', 'Brand New Story')
             ->set('subtitle', 'Brand New Subtitle')
             ->set('description', 'Brand New Description')
@@ -135,7 +135,7 @@ class AdminStoriesTest extends TestCase
             ->assertSee('Story Library');
 
         Livewire::actingAs($user)
-            ->test('admin.stories.edit-modal')
+            ->test('admin.stories.edit')
             ->call('openModal', $story->id)
             ->assertSee('Edit Story')
             ->assertSee('Title')
@@ -154,7 +154,7 @@ class AdminStoriesTest extends TestCase
         ]);
 
         Livewire::actingAs($user)
-            ->test('admin.stories.edit-modal')
+            ->test('admin.stories.edit')
             ->call('openModal', $story->id)
             ->set('title', 'Updated Title')
             ->set('subtitle', 'Updated Subtitle')
@@ -183,7 +183,7 @@ class AdminStoriesTest extends TestCase
         ]);
 
         Livewire::actingAs($user)
-            ->test('admin.stories.edit-modal')
+            ->test('admin.stories.edit')
             ->call('openModal', $story->id)
             ->call('deleteStory')
             ->assertDispatched('story-deleted');
@@ -204,7 +204,7 @@ class AdminStoriesTest extends TestCase
         ]);
 
         Livewire::actingAs($user)
-            ->test('admin.stories.images-modal')
+            ->test('admin.stories.images')
             ->call('openModal', $story->id)
             ->call('createImage')
             ->assertDispatched('create-image');
@@ -226,7 +226,7 @@ class AdminStoriesTest extends TestCase
         ]);
 
         Livewire::actingAs($user)
-            ->test('admin.stories.images-modal')
+            ->test('admin.stories.images')
             ->call('openModal', $story->id)
             ->call('editImage', $image->id)
             ->assertDispatched('edit-image');
@@ -248,7 +248,7 @@ class AdminStoriesTest extends TestCase
         ]);
 
         Livewire::actingAs($user)
-            ->test('admin.stories.images-modal')
+            ->test('admin.stories.images')
             ->call('openModal', $story->id)
             ->call('saveImage', $image->id);
 

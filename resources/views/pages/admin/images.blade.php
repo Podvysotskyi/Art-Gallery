@@ -7,7 +7,7 @@
                     Manage uploaded artworks and collection photos.
                 </p>
             </div>
-            <livewire:admin.images.create-modal/>
+            <livewire:admin.images.create/>
         </div>
 
         <div class="mt-6">

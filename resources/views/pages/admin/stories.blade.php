@@ -7,7 +7,7 @@
                     Browse and review all stories in the catalog.
                 </p>
             </div>
-            <livewire:admin.stories.create-modal/>
+            <livewire:admin.stories.create/>
         </div>
 
         <div class="mt-6">

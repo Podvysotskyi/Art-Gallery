@@ -1,14 +1,11 @@
 <?php
 
-use App\Models\Image;
+use App\Actions\Image\CreateImageAction;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Spatie\Image\Enums\Fit;
-use Spatie\Image\Image as SpatieImage;
 
 new class extends Component
 {
@@ -48,70 +45,21 @@ new class extends Component
         $this->resetForm();
     }
 
-    public function createImage(): void
+    public function createImage(CreateImageAction $action): void
     {
         $this->validate();
 
-        $filename = pathinfo($this->image->getClientOriginalName(), PATHINFO_FILENAME);
+        $image = $action->handle($this->image, $this->title, $this->hide);
 
-        $image = Image::make([
-            'title' => $this->title ?: $filename,
-            'hash' => hash_file('sha256', $this->image->getRealPath()),
-            'hide' => $this->hide,
-        ]);
-
-        try {
-            $image->save();
-        } catch (Exception) {
-            Flux::toast(text: 'Image already exists.', variant: 'danger');
-            Flux::modal('create-image')->close();
-
-            $this->dispatch('image-created', imageId: null);
-            $this->resetForm();
-
-            return;
+        if ($image) {
+            Flux::toast(text: 'Image created successfully.', variant: 'success');
+        } else {
+            Flux::toast(text: 'Failed to create the image.', variant: 'danger');
         }
 
-        try {
-            if (! Storage::disk('public')->exists('images')) {
-                Storage::disk('public')->makeDirectory('images');
-            }
-            if (! Storage::disk('public')->exists('images/previews')) {
-                Storage::disk('public')->makeDirectory('images/previews');
-            }
-
-            $this->image->storeAs('images', "{$image->id}.jpg", 'public');
-
-            $originalPath = Storage::disk('public')->path("images/{$image->id}.jpg");
-            $previewPath = Storage::disk('public')->path("images/previews/{$image->id}.jpg");
-
-            SpatieImage::load($originalPath)
-                ->fit(Fit::Crop, 240, 240)
-                ->save($previewPath);
-        } catch (Exception $exception) {
-            $image->delete();
-
-            if (Storage::disk('public')->exists("images/{$image->id}.jpg")) {
-                Storage::disk('public')->delete("images/{$image->id}.jpg");
-            }
-
-            if (Storage::disk('public')->exists("images/previews/{$image->id}.jpg")) {
-                Storage::disk('public')->delete("images/previews/{$image->id}.jpg");
-            }
-
-            Flux::toast(text: 'Failed to upload the image.', variant: 'danger');
-            Flux::modal('create-image')->close();
-
-            $this->dispatch('image-created', imageId: null);
-            $this->resetForm();
-
-            return;
-        }
-
-        Flux::toast(text: 'Image created successfully.', variant: 'success');
         Flux::modal('create-image')->close();
 
-        $this->dispatch('image-created', imageId: $image->id);
+        $this->dispatch('image-created', imageId: $image?->id);
         $this->resetForm();
     }
 
@@ -161,7 +109,9 @@ new class extends Component
                 required
             />
             @error('image')
-            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+            <p class="mt-2 text-sm text-red-600">
+                {{ $message }}
+            </p>
             @enderror
 
             <div class="flex items-center gap-2">

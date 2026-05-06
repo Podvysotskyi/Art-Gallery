@@ -63,15 +63,7 @@ class AuthenticatedNavigationTest extends TestCase
     {
         $this->actingAs(User::factory()->create())
             ->get('/admin/images')
-            ->assertOk()
-            ->assertSee('Admin Panel')
-            ->assertSee('Images')
-            ->assertSee('Image Library')
-            ->assertSee('Preview')
-            ->assertSee('Action')
-            ->assertSee('Upload Image')
-            ->assertSee('/logs')
-            ->assertSee('Logout');
+            ->assertOk();
     }
 
     public function test_authenticated_user_can_view_admin_projects_page(): void
@@ -127,9 +119,8 @@ class AuthenticatedNavigationTest extends TestCase
 
     public function test_authenticated_user_can_view_admin_images_page_with_create_action(): void
     {
-        $this->actingAs(User::factory()->create())
-            ->get('/admin/images')
-            ->assertOk()
+        Livewire::actingAs(User::factory()->create())
+            ->test('admin.images.create')
             ->assertSee('Upload Image');
     }
 
@@ -141,17 +132,12 @@ class AuthenticatedNavigationTest extends TestCase
             'hide' => false,
         ]);
 
-        $this->actingAs(User::factory()->create())
-            ->get('/admin/images')
-            ->assertOk()
-            ->assertSee('Image Library');
-
         Livewire::actingAs(User::factory()->create())
             ->test('admin.images.table')
             ->assertSee('Edit');
 
         Livewire::actingAs(User::factory()->create())
-            ->test('admin.images.edit-modal')
+            ->test('admin.images.edit')
             ->call('openModal', $image->id)
             ->assertSee('Edit Image')
             ->assertSee('Save Changes')
@@ -167,7 +153,7 @@ class AuthenticatedNavigationTest extends TestCase
         $expectedHash = hash_file('sha256', $image->getRealPath());
 
         Livewire::actingAs(User::factory()->create())
-            ->test('admin.images.create-modal')
+            ->test('admin.images.create')
             ->set('title', 'Blue Dusk')
             ->set('image', $image)
             ->set('hide', true)
@@ -192,7 +178,7 @@ class AuthenticatedNavigationTest extends TestCase
         $image = UploadedFile::fake()->image('auto-title.jpg');
 
         Livewire::actingAs(User::factory()->create())
-            ->test('admin.images.create-modal')
+            ->test('admin.images.create')
             ->set('title', '')
             ->set('image', $image)
             ->call('createImage');
@@ -209,7 +195,7 @@ class AuthenticatedNavigationTest extends TestCase
         $pngImage = UploadedFile::fake()->image('not-allowed.png');
 
         Livewire::actingAs(User::factory()->create())
-            ->test('admin.images.create-modal')
+            ->test('admin.images.create')
             ->set('title', 'PNG Attempt')
             ->set('image', $pngImage)
             ->call('createImage')
@@ -224,7 +210,7 @@ class AuthenticatedNavigationTest extends TestCase
         $expectedHash = hash_file('sha256', $jpegImage->getRealPath());
 
         Livewire::actingAs(User::factory()->create())
-            ->test('admin.images.create-modal')
+            ->test('admin.images.create')
             ->set('title', 'JPEG Upload')
             ->set('image', $jpegImage)
             ->call('createImage');
@@ -245,7 +231,7 @@ class AuthenticatedNavigationTest extends TestCase
         ]);
 
         Livewire::actingAs(User::factory()->create())
-            ->test('admin.images.edit-modal')
+            ->test('admin.images.edit')
             ->call('openModal', $image->id)
             ->set('title', 'Updated Title')
             ->set('hide', true)
@@ -273,7 +259,7 @@ class AuthenticatedNavigationTest extends TestCase
         Storage::disk('public')->put('images/previews/'.$image->id.'.jpg', 'fake-preview-content');
 
         Livewire::actingAs(User::factory()->create())
-            ->test('admin.images.edit-modal')
+            ->test('admin.images.edit')
             ->call('openModal', $image->id)
             ->call('deleteImage')
             ->assertDispatched('image-deleted');

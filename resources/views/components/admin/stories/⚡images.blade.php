@@ -38,6 +38,7 @@ new class extends Component
         $this->dispatch('edit-image', imageId: $imageId);
     }
 
+    #[On('image-updated')]
     #[On('image-created')]
     public function saveImage(?string $imageId = null): void
     {
@@ -51,7 +52,6 @@ new class extends Component
     }
 
     #[On('image-deleted')]
-    #[On('image-updated')]
     public function updateImages(): void
     {
         $this->story->load('images');
@@ -138,6 +138,6 @@ new class extends Component
         </section>
     </flux:modal>
 
-    <livewire:admin.images.create-modal :show-trigger="false"/>
-    <livewire:admin.images.edit-modal/>
+    <livewire:admin.images.create :show-trigger="false"/>
+    <livewire:admin.images.edit/>
 </div>

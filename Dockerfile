@@ -31,7 +31,8 @@ COPY --from=node /src /app
 
 WORKDIR /app
 
-RUN chown -R www-data:www-data /app
+RUN chown -R www-data:www-data /app \
+    && chown -R www-data:www-data /var/www
 
 USER www-data
 

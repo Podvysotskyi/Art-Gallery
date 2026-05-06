@@ -101,5 +101,5 @@ new class extends Component
         </table>
     </div>
 
-    <livewire:admin.images.edit-modal/>
+    <livewire:admin.images.edit/>
 </div>

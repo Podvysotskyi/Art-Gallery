@@ -99,6 +99,6 @@ new class extends Component
         </table>
     </div>
 
-    <livewire:admin.stories.images-modal/>
-    <livewire:admin.stories.edit-modal/>
+    <livewire:admin.stories.images/>
+    <livewire:admin.stories.edit/>
 </div>
