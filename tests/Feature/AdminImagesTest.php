@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Image;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -110,5 +111,20 @@ class AdminImagesTest extends TestCase
             ->assertSee('Confirm Delete')
             ->call('cancelImageDelete')
             ->assertSee('Edit Image');
+    }
+
+    public function test_admin_images_create_rejects_files_larger_than_ten_megabytes(): void
+    {
+        $user = User::factory()->create();
+        $oversizedImage = UploadedFile::fake()->createWithContent(
+            'oversized.jpg',
+            str_repeat('a', (10 * 1024 * 1024) + 1)
+        );
+
+        Livewire::actingAs($user)
+            ->test('admin.images.create')
+            ->set('image', $oversizedImage)
+            ->call('createImage')
+            ->assertHasErrors(['image' => ['max']]);
     }
 }

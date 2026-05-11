@@ -26,7 +26,7 @@ new class extends Component
     {
         return [
             'title' => ['nullable', 'string', 'max:255'],
-            'image' => ['required', 'file', 'mimes:jpg,jpeg'],
+            'image' => ['required', 'file', 'mimes:jpg,jpeg', 'max:10240'],
             'hide' => ['boolean'],
         ];
     }
