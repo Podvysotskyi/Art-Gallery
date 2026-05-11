@@ -30,6 +30,10 @@ RUN apt-get update \
     && chmod 0440 "/etc/sudoers.d/${USERNAME}" \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+RUN { \
+        echo 'upload_max_filesize=10M'; \
+        echo 'post_max_size=10M'; \
+    } > /usr/local/etc/php/conf.d/uploads.ini
 
 WORKDIR /workspaces/art-gallery
 

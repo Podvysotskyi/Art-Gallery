@@ -24,6 +24,10 @@ FROM php:8.5-fpm as base
 
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 RUN install-php-extensions redis pdo_pgsql gd
+RUN { \
+        echo 'upload_max_filesize=10M'; \
+        echo 'post_max_size=10M'; \
+    } > /usr/local/etc/php/conf.d/uploads.ini
 
 EXPOSE 8000
 
