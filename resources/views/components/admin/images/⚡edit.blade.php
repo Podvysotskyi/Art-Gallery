@@ -63,7 +63,7 @@ new class extends Component
 
     public function deleteImage(DeleteImageAction $deleteImageAction): void
     {
-        $deleteImageAction->handle($this->image);
+        $deleteImageAction($this->image);
 
         Flux::modal('delete-image')->close();
         Flux::toast(text: 'Image deleted successfully.', variant: 'success');

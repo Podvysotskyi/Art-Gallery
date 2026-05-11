@@ -49,7 +49,7 @@ new class extends Component
     {
         $this->validate();
 
-        $image = $action->handle($this->image, $this->title, $this->hide);
+        $image = $action($this->image, $this->title, $this->hide);
 
         if ($image) {
             Flux::toast(text: 'Image created successfully.', variant: 'success');

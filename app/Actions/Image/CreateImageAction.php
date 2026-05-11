@@ -11,7 +11,7 @@ class CreateImageAction extends ImageAction
 {
     public function __construct(private readonly DeleteImageAction $deleteImageAction) {}
 
-    public function handle(UploadedFile $uploadedFile, string $title, bool $hide): ?Image
+    public function __invoke(UploadedFile $uploadedFile, string $title, bool $hide): ?Image
     {
         $hash = self::getFileHash($uploadedFile);
         $filename = self::getFileName($uploadedFile);
@@ -26,7 +26,7 @@ class CreateImageAction extends ImageAction
             $image = $this->createImage($uploadedFile, $hash, $title ?: $filename, $hide);
         } catch (Exception) {
             if ($image !== null) {
-                $this->deleteImageAction->handle($image);
+                ($this->deleteImageAction)($image);
             }
 
             return null;

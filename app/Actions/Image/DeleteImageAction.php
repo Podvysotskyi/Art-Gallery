@@ -6,7 +6,7 @@ use App\Models\Image;
 
 class DeleteImageAction extends ImageAction
 {
-    public function handle(Image $image): void
+    public function __invoke(Image $image): void
     {
         $image->delete();
 

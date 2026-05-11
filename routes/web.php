@@ -3,10 +3,11 @@
 use App\Http\Controllers\Auth\Google\GoogleCallbackController;
 use App\Http\Controllers\Auth\Google\GoogleRedirectController;
 use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\GalleryPageController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', 'gallery')->name('home');
-Route::view('/gallery', 'pages.gallery')->name('gallery');
+Route::get('/gallery', GalleryPageController::class)->name('gallery');
 Route::view('/projects', 'pages.projects')->name('projects');
 
 Route::middleware('guest')->group(function () {
