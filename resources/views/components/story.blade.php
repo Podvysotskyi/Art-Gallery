@@ -1,37 +1,31 @@
-<script setup lang="ts">
-import ImageComponent from '@/components/ImageComponent.vue'
+<div>
+    <div class="mt-4 flex justify-center">
+        <span class="text-2xl font-bold">
+            {{ data_get($story, 'title') }}
+        </span>
+    </div>
 
-const props = defineProps<{ story: StoryDto }>()
+    @if (filled(data_get($story, 'subtitle')))
+        <div class="mt-2 flex justify-center">
+            <span class="text-sm text-gray-600">
+                {{ data_get($story, 'subtitle') }}
+            </span>
+        </div>
+    @endif
 
-const imagePreviewRef = useTemplateRef('imagePreview')
+    @if (filled(data_get($story, 'description')))
+        <div class="my-4 flex justify-center">
+            <span class="text-sm font-thin">
+                {{ data_get($story, 'description') }}
+            </span>
+        </div>
+    @endif
 
-const hasSubtitle = computed(() => props.story.subtitle !== null && props.story.subtitle.length > 0)
-const hasDescription = computed(() => props.story.description !== null && props.story.description.length > 0)
-const hasImages = computed(() => props.story.images.length > 0)
-</script>
-
-<template>
-  <div class="flex justify-center mt-4">
-    <span class="text-2xl font-bold">
-      {{ props.story.title }}
-    </span>
-  </div>
-  <div class="flex justify-center mt-2" v-if="hasSubtitle">
-    <span class="text-sm text-gray-600">
-      {{ props.story.subtitle }}
-    </span>
-  </div>
-  <div class="flex justify-center my-4" v-if="hasDescription">
-    <span class="text-sm font-thin">
-      {{ props.story.description }}
-    </span>
-  </div>
-  <div class="grid grid-flow-row xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 grid-cols-1 my-2" v-if="hasImages">
-    <template v-for="(image, index) in props.story.images" :key="image.id">
-      <ImageComponent :title="`${props.story.title} image ${index}`" :image="image"
-                      @preview="imagePreviewRef!.open(image.id)"/>
-    </template>
-  </div>
-
-  <ImagePreviewComponent :images="story.images" ref="imagePreview"/>
-</template>
+    @if (collect(data_get($story, 'images', []))->isNotEmpty())
+        <div class="my-2 grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            @foreach (data_get($story, 'images', []) as $image)
+                <x-image :image="$image"/>
+            @endforeach
+        </div>
+    @endif
+</div>

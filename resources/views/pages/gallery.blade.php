@@ -1,3 +1,3 @@
 <x-layouts::app :title="__('Welcome')">
-    <h1>Gallery</h1>
+    <livewire:gallery lazy/>
 </x-layouts::app>
