@@ -52,7 +52,7 @@
     </div>
 </header>
 
-<main class="my-4 max-w-7xl sm:px-6 lg:px-8">
+<main class="mt-2 mb-4 px-4 sm:px-6 max-w-7xl mx-auto">
     {{ $slot }}
 </main>
 

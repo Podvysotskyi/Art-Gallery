@@ -11,6 +11,7 @@ class GetAllStories
     {
         return Story::query()
             ->where('hide', false)
+            ->with(['images' => fn ($query) => $query->where('hide', false)])
             ->get();
     }
 }

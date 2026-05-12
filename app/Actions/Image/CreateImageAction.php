@@ -69,8 +69,8 @@ class CreateImageAction extends ImageAction
         $content = self::saveImageToLocalStorage($uploadedFile, "{$image->id}.jpg", 'uploads');
         self::saveImageToPublicStorage($content, "{$image->id}.jpg", 'images');
 
-        $content = self::createImagePreview("{$image->id}.jpg");
-        self::saveImageToPublicStorage($content, "{$image->id}.jpg", 'images/previews');
+        $previewContent = self::createImagePreview("{$image->id}.jpg");
+        self::saveImageToPublicStorage($previewContent, "{$image->id}.jpg", 'images/previews');
 
         self::deleteImageFromLocalStorage("{$image->id}.jpg", 'uploads');
 
